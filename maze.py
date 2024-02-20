@@ -39,6 +39,10 @@ class Game:
     def make_maze(self):
         return Maze()
     
+class BombedGame(Game):
+    def make_wall(self):
+        return BombedWall()
+
 class MapElement:
     def __init__(self):
         pass
@@ -90,19 +94,31 @@ class Door(MapElement):
             print("The door is closed")
 
 
-        
 class Wall(MapElement):
     def __init__(self):
         pass # Walls don't need any special attributes
 
     def entrar(self):
         print("You can't go through walls")
+
+class BombedWall(Wall):
+    def __init__(self):
+        self.active = False
+    def entrar(self):
+        if self.active:
+            print("You are dead")
+        else:
+            return super().entrar()
     
 
-game=Game()
-game.make2RoomsMazeFM()
-game.maze.entrar()
-game.maze.doors[0].entrar()
+# game=Game()
+# game.make2RoomsMazeFM()
+# game.maze.entrar()
+# game.maze.doors[0].entrar()
+
+game2=BombedGame()
+game2.make2RoomsMazeFM()
+game2.maze.entrar()
 
 
 
