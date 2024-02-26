@@ -39,13 +39,36 @@ class Game:
     def make_maze(self):
         return Maze()
     
+class BombedGame(Game):
+    def make_wall(self):
+        return BombedWall()
+
 class MapElement:
     def __init__(self):
         pass
     def entrar(self):
         pass
 
-class Maze(MapElement):
+class Hoja(MapElement):
+    def accept(self, visitor):
+        visitor.visitHoja(self)
+
+class Decorator(Hoja):
+    def __init__(self, component):
+        self.component = component
+
+# clase hoja  subclase de MapElement y clase contenedor  subclase de MapElement
+class Contenedor(MapElement):
+    def __init__ (self):
+        self.hijos=[]
+
+    def agregarHijo(self, hijo):
+        self.hijos.append(hijo)
+    
+    def eliminarHijo(self, hijo):
+        self.hijos.remove(hijo)
+
+class Maze(Contenedor):
     def __init__(self):
         self.rooms = []
         self.doors = []
@@ -61,10 +84,11 @@ class Maze(MapElement):
         room1.connect(door)
         room2.connect(door)
 
-class Room(MapElement):
+class Room(Contenedor):
     def __init__(self, id):
         self.id = id
         self.north = Wall()
+        # esto se podria hacer inicializando a None y luego en el make_room que haga self.north = self.make_wall()
         self.south = Wall()
         self.east = Wall()
         self.west = Wall()
@@ -90,19 +114,69 @@ class Door(MapElement):
             print("The door is closed")
 
 
-        
 class Wall(MapElement):
     def __init__(self):
         pass # Walls don't need any special attributes
 
     def entrar(self):
         print("You can't go through walls")
+
+class BombedWall(Wall):
+    def __init__(self):
+        self.active = False
+    def entrar(self):
+        if self.active:
+            print("You are dead")
+        else:
+            return super().entrar()
     
 
-game=Game()
-game.make2RoomsMazeFM()
+# game=Game()
+# game.make2RoomsMazeFM()
+# game.maze.entrar()
+# game.maze.doors[0].entrar()
+        
+game = Game()
+game.make2RoomsMaze()
 game.maze.entrar()
-game.maze.doors[0].entrar()
+
+game = Game()
+game.make2RoomsMazeFM()
+import unittest
+
+class TestMaze(unittest.TestCase):
+
+    def test_move(self):
+        # Set up maze and player
+        maze = Maze() 
+        player = Player()
+        
+        # Test moving player
+        player.move("right")
+        self.assertEqual(player.x, 1)
+        self.assertEqual(player.y, 0)
+        
+        player.move("down")
+        self.assertEqual(player.x, 1)
+        self.assertEqual(player.y, 1)
+        
+        player.move("left")
+        self.assertEqual(player.x, 0)
+        self.assertEqual(player.y, 1)
+        
+        player.move("up")
+        self.assertEqual(player.x, 0)
+        self.assertEqual(player.y, 0)
+        
+if __name__ == '__main__':
+    unittest.main()
+
+    #FM, decoractor, strategy y composite design patterns the project must have
+
+
+game2=BombedGame()
+game2.make2RoomsMazeFM()
+game2.maze.entrar()
 
 
 
